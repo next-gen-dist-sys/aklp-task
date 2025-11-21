@@ -33,7 +33,7 @@ if config.config_file_name is not None:
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 # 모델의 MetaData 객체 설정 (autogenerate 기능을 위해 필수)
-# Base.metadata에는 모든 모델(Note 등)의 테이블 정보가 포함됨
+# Base.metadata에는 모든 모델(Task 등)의 테이블 정보가 포함됨
 target_metadata = Base.metadata
 
 
