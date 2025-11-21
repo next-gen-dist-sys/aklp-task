@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from typing import Any, Literal
 from uuid import UUID
 
-from sqlalchemy import Select, func, select
+from sqlalchemy import Select, case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.task import Task, TaskPriority, TaskStatus
@@ -131,21 +131,21 @@ class TaskService:
             if order == "asc":
                 # low > medium > high > NULL
                 return query.order_by(
-                    func.case(
+                    case(
                         (Task.priority == TaskPriority.LOW, 1),
                         (Task.priority == TaskPriority.MEDIUM, 2),
                         (Task.priority == TaskPriority.HIGH, 3),
-                        else_=4,  # NULL values
+                        (Task.priority.is_(None), 4),
                     )
                 )
             else:  # desc
                 # high > medium > low > NULL
                 return query.order_by(
-                    func.case(
+                    case(
                         (Task.priority == TaskPriority.HIGH, 1),
                         (Task.priority == TaskPriority.MEDIUM, 2),
                         (Task.priority == TaskPriority.LOW, 3),
-                        else_=4,  # NULL values
+                        (Task.priority.is_(None), 4),
                     )
                 )
         elif sort_by == "status":
@@ -153,7 +153,7 @@ class TaskService:
             if order == "asc":
                 # pending > in_progress > completed
                 return query.order_by(
-                    func.case(
+                    case(
                         (Task.status == TaskStatus.PENDING, 1),
                         (Task.status == TaskStatus.IN_PROGRESS, 2),
                         (Task.status == TaskStatus.COMPLETED, 3),
@@ -162,7 +162,7 @@ class TaskService:
             else:  # desc
                 # completed > in_progress > pending
                 return query.order_by(
-                    func.case(
+                    case(
                         (Task.status == TaskStatus.COMPLETED, 1),
                         (Task.status == TaskStatus.IN_PROGRESS, 2),
                         (Task.status == TaskStatus.PENDING, 3),
