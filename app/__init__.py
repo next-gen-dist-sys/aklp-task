@@ -1,3 +1,3 @@
-"""AKLP Service Template."""
+"""AKLP Task Service."""
 
 __version__ = "0.1.0"
