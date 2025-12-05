@@ -59,6 +59,7 @@ async def list_tasks(
     page: int = Query(default=1, ge=1, description="Page number (1-indexed)"),
     status: TaskStatus | None = Query(default=None, description="Filter by status"),
     session_id: UUID | None = Query(default=None, description="Filter by session ID"),
+    batch_id: UUID | None = Query(default=None, description="Filter by batch ID"),
     sort_by: Literal["updated_at", "created_at", "due_date", "priority", "status"] = Query(
         default="updated_at", description="Sort field"
     ),
@@ -71,6 +72,7 @@ async def list_tasks(
         page: Page number (1-indexed)
         status: Optional status filter
         session_id: Optional session ID filter
+        batch_id: Optional batch ID filter
         sort_by: Sort field (default: updated_at)
         order: Sort order (default: desc)
 
@@ -82,6 +84,7 @@ async def list_tasks(
         page=page,
         status=status,
         session_id=session_id,
+        batch_id=batch_id,
         sort_by=sort_by,
         order=order,
     )

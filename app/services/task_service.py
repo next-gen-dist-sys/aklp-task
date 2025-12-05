@@ -61,6 +61,7 @@ class TaskService:
         page: int = 1,
         status: TaskStatus | None = None,
         session_id: UUID | None = None,
+        batch_id: UUID | None = None,
         sort_by: Literal[
             "updated_at", "created_at", "due_date", "priority", "status"
         ] = "updated_at",
@@ -72,6 +73,7 @@ class TaskService:
             page: Page number (1-indexed)
             status: Optional status filter
             session_id: Optional session ID filter
+            batch_id: Optional batch ID filter
             sort_by: Sort field (default: updated_at)
             order: Sort order (default: desc)
 
@@ -94,6 +96,9 @@ class TaskService:
         if session_id is not None:
             query = query.where(Task.session_id == session_id)
             count_query = count_query.where(Task.session_id == session_id)
+        if batch_id is not None:
+            query = query.where(Task.batch_id == batch_id)
+            count_query = count_query.where(Task.batch_id == batch_id)
 
         # Apply sorting
         query = self._apply_sorting(query, sort_by, order)
