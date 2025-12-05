@@ -79,3 +79,35 @@ class TaskListResponse(BaseModel):
     def has_prev(self) -> bool:
         """Check if there is a previous page."""
         return self.page > 1
+
+
+class TaskBulkUpdateItem(TaskUpdate):
+    """Schema for a single task update in bulk operation."""
+
+    id: UUID = Field(..., description="Task ID to update")
+
+
+class TaskBulkUpdate(BaseModel):
+    """Schema for bulk task update."""
+
+    tasks: list[TaskBulkUpdateItem] = Field(
+        ..., min_length=1, description="List of tasks to update"
+    )
+
+
+class TaskBulkDelete(BaseModel):
+    """Schema for bulk task delete."""
+
+    ids: list[UUID] = Field(..., min_length=1, description="List of task IDs to delete")
+
+
+class TaskBulkUpdateResponse(BaseModel):
+    """Schema for bulk update response."""
+
+    updated: list[TaskResponse] = Field(default_factory=list, description="Updated tasks")
+
+
+class TaskBulkDeleteResponse(BaseModel):
+    """Schema for bulk delete response."""
+
+    deleted_count: int = Field(..., description="Number of deleted tasks")

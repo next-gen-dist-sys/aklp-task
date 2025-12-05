@@ -7,7 +7,17 @@ from app.schemas.responses import (
     HealthResponse,
     SuccessResponse,
 )
-from app.schemas.task import TaskCreate, TaskListResponse, TaskResponse, TaskUpdate
+from app.schemas.task import (
+    TaskBulkDelete,
+    TaskBulkDeleteResponse,
+    TaskBulkUpdate,
+    TaskBulkUpdateItem,
+    TaskBulkUpdateResponse,
+    TaskCreate,
+    TaskListResponse,
+    TaskResponse,
+    TaskUpdate,
+)
 
 __all__ = [
     # Task schemas
@@ -15,6 +25,11 @@ __all__ = [
     "TaskUpdate",
     "TaskResponse",
     "TaskListResponse",
+    "TaskBulkUpdate",
+    "TaskBulkUpdateItem",
+    "TaskBulkUpdateResponse",
+    "TaskBulkDelete",
+    "TaskBulkDeleteResponse",
     # Batch schemas
     "BatchCreate",
     "BatchResponse",
