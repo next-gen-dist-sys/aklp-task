@@ -7,7 +7,16 @@ from fastapi import APIRouter, HTTPException, Query, status
 
 from app.core.deps import DBSession
 from app.models.task import TaskStatus
-from app.schemas.task import TaskCreate, TaskListResponse, TaskResponse, TaskUpdate
+from app.schemas.task import (
+    TaskBulkDelete,
+    TaskBulkDeleteResponse,
+    TaskBulkUpdate,
+    TaskBulkUpdateResponse,
+    TaskCreate,
+    TaskListResponse,
+    TaskResponse,
+    TaskUpdate,
+)
 from app.services.task_service import TaskService
 
 router = APIRouter()
@@ -50,6 +59,7 @@ async def list_tasks(
     page: int = Query(default=1, ge=1, description="Page number (1-indexed)"),
     status: TaskStatus | None = Query(default=None, description="Filter by status"),
     session_id: UUID | None = Query(default=None, description="Filter by session ID"),
+    batch_id: UUID | None = Query(default=None, description="Filter by batch ID"),
     sort_by: Literal["updated_at", "created_at", "due_date", "priority", "status"] = Query(
         default="updated_at", description="Sort field"
     ),
@@ -62,6 +72,7 @@ async def list_tasks(
         page: Page number (1-indexed)
         status: Optional status filter
         session_id: Optional session ID filter
+        batch_id: Optional batch ID filter
         sort_by: Sort field (default: updated_at)
         order: Sort order (default: desc)
 
@@ -73,6 +84,7 @@ async def list_tasks(
         page=page,
         status=status,
         session_id=session_id,
+        batch_id=batch_id,
         sort_by=sort_by,
         order=order,
     )
@@ -85,6 +97,58 @@ async def list_tasks(
     )
 
 
+# Bulk operations must come before /{task_id} routes to avoid path conflicts
+@router.put(
+    "/bulk",
+    response_model=TaskBulkUpdateResponse,
+    summary="Update multiple tasks",
+)
+async def bulk_update_tasks(
+    bulk_data: TaskBulkUpdate,
+    db: DBSession,
+) -> TaskBulkUpdateResponse:
+    """Update multiple tasks at once.
+
+    Args:
+        bulk_data: Bulk update data with list of tasks
+        db: Database session
+
+    Returns:
+        List of updated tasks
+    """
+    service = TaskService(db)
+    updated_tasks = await service.bulk_update(bulk_data)
+
+    return TaskBulkUpdateResponse(
+        updated=[TaskResponse.model_validate(task) for task in updated_tasks]
+    )
+
+
+@router.delete(
+    "/bulk",
+    response_model=TaskBulkDeleteResponse,
+    summary="Delete multiple tasks",
+)
+async def bulk_delete_tasks(
+    bulk_data: TaskBulkDelete,
+    db: DBSession,
+) -> TaskBulkDeleteResponse:
+    """Delete multiple tasks at once.
+
+    Args:
+        bulk_data: Bulk delete data with list of task IDs
+        db: Database session
+
+    Returns:
+        Number of deleted tasks
+    """
+    service = TaskService(db)
+    deleted_count = await service.bulk_delete(bulk_data.ids)
+
+    return TaskBulkDeleteResponse(deleted_count=deleted_count)
+
+
+# Single task operations with path parameter
 @router.get(
     "/{task_id}",
     response_model=TaskResponse,
