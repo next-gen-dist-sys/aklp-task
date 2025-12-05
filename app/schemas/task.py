@@ -41,6 +41,7 @@ class TaskResponse(BaseModel):
 
     id: UUID
     session_id: UUID | None
+    batch_id: UUID | None
     title: str
     description: str | None
     status: TaskStatus
