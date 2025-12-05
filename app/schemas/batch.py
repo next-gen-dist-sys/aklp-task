@@ -12,6 +12,7 @@ class BatchCreate(BaseModel):
     """Schema for creating a new batch with tasks."""
 
     session_id: UUID | None = Field(None, description="AI session ID (optional)")
+    reason: str | None = Field(None, description="AI's reason for creating these tasks")
     tasks: list[TaskCreate] = Field(..., min_length=1, description="List of tasks to create")
 
 
@@ -20,6 +21,7 @@ class BatchResponse(BaseModel):
 
     id: UUID
     session_id: UUID | None
+    reason: str | None
     created_at: datetime
     tasks: list[TaskResponse] = Field(default_factory=list)
 

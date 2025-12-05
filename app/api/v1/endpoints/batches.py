@@ -39,6 +39,7 @@ async def create_batch(
     return BatchResponse(
         id=batch.id,
         session_id=batch.session_id,
+        reason=batch.reason,
         created_at=batch.created_at,
         tasks=[TaskResponse.model_validate(task) for task in batch.tasks],
     )
@@ -72,6 +73,7 @@ async def list_batches(
             BatchResponse(
                 id=batch.id,
                 session_id=batch.session_id,
+                reason=batch.reason,
                 created_at=batch.created_at,
                 tasks=[TaskResponse.model_validate(task) for task in batch.tasks],
             )
@@ -110,6 +112,7 @@ async def get_latest_batch(
     return BatchResponse(
         id=batch.id,
         session_id=batch.session_id,
+        reason=batch.reason,
         created_at=batch.created_at,
         tasks=[TaskResponse.model_validate(task) for task in batch.tasks],
     )
@@ -148,6 +151,7 @@ async def get_batch(
     return BatchResponse(
         id=batch.id,
         session_id=batch.session_id,
+        reason=batch.reason,
         created_at=batch.created_at,
         tasks=[TaskResponse.model_validate(task) for task in batch.tasks],
     )

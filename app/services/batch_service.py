@@ -32,7 +32,10 @@ class BatchService:
             Created batch with tasks
         """
         # Create batch
-        batch = TaskBatch(session_id=batch_data.session_id)
+        batch = TaskBatch(
+            session_id=batch_data.session_id,
+            reason=batch_data.reason,
+        )
         self.db.add(batch)
         await self.db.flush()  # Get batch.id without committing
 

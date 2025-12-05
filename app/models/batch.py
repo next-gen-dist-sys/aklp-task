@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -23,6 +23,7 @@ class TaskBatch(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     session_id: Mapped[UUID | None] = mapped_column(nullable=True, default=None)
+    reason: Mapped[str | None] = mapped_column(Text, nullable=True, default=None)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=func.now()
     )
