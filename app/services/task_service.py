@@ -8,7 +8,7 @@ from sqlalchemy import Select, case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.task import Task, TaskPriority, TaskStatus
-from app.schemas.task import TaskCreate, TaskUpdate
+from app.schemas.task import TaskBulkUpdate, TaskCreate, TaskUpdate
 
 
 class TaskService:
@@ -241,3 +241,72 @@ class TaskService:
         await self.db.delete(task)
         await self.db.commit()
         return True
+
+    async def bulk_update(self, bulk_data: TaskBulkUpdate) -> list[Task]:
+        """Update multiple tasks at once.
+
+        Args:
+            bulk_data: Bulk update data with list of tasks
+
+        Returns:
+            List of updated tasks (only successfully updated ones)
+        """
+        updated_tasks: list[Task] = []
+
+        for item in bulk_data.tasks:
+            task = await self.get_by_id(item.id)
+            if task is None:
+                continue
+
+            # Store old status for comparison
+            old_status = task.status
+
+            # Update fields if provided
+            if item.title is not None:
+                task.title = item.title
+            if item.description is not None:
+                task.description = item.description
+            if item.status is not None:
+                task.status = item.status
+            if item.priority is not None:
+                task.priority = item.priority
+            if item.due_date is not None:
+                task.due_date = item.due_date
+
+            # Handle completed_at auto-management
+            if item.status is not None:
+                new_status = item.status
+                if new_status == TaskStatus.COMPLETED and old_status != TaskStatus.COMPLETED:
+                    task.completed_at = datetime.now(UTC)
+                elif old_status == TaskStatus.COMPLETED and new_status != TaskStatus.COMPLETED:
+                    task.completed_at = None
+
+            updated_tasks.append(task)
+
+        await self.db.commit()
+
+        # Refresh all updated tasks
+        for task in updated_tasks:
+            await self.db.refresh(task)
+
+        return updated_tasks
+
+    async def bulk_delete(self, task_ids: list[UUID]) -> int:
+        """Delete multiple tasks at once.
+
+        Args:
+            task_ids: List of task UUIDs to delete
+
+        Returns:
+            Number of deleted tasks
+        """
+        deleted_count = 0
+
+        for task_id in task_ids:
+            task = await self.get_by_id(task_id)
+            if task is not None:
+                await self.db.delete(task)
+                deleted_count += 1
+
+        await self.db.commit()
+        return deleted_count
