@@ -1,14 +1,20 @@
 """Task model for database."""
 
+from __future__ import annotations
+
 import enum
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.models.base import Base
+
+if TYPE_CHECKING:
+    from app.models.batch import TaskBatch
 
 
 class TaskStatus(str, enum.Enum):
@@ -53,6 +59,12 @@ class Task(Base):
     completed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, default=None
     )
+
+    # Batch relationship
+    batch_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("task_batches.id"), nullable=True, default=None
+    )
+    batch: Mapped[TaskBatch | None] = relationship("TaskBatch", back_populates="tasks")
 
     def __repr__(self) -> str:
         """String representation of Task."""
